@@ -1,0 +1,127 @@
+<!-- edit_article.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Article</title>
+    <!-- Include your stylesheets, scripts, or any other dependencies here -->
+  </head>
+  <body>
+    <h1>Edit Article</h1>
+
+    <div id="edit-article-container">
+      <label for="article-title">Title:</label>
+      <input type="text" id="article-title" />
+
+      <label for="article-content">Content:</label>
+      <textarea id="article-content"></textarea>
+
+      <button onclick="updateArticle()">Update Article</button>
+    </div>
+
+    <script>
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      // Function to extract article ID from the URL query parameters
+      function getArticleIdFromQuery() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get("articleID"); // Make sure the parameter name matches the one in your URL
+      }
+
+      // Function to fetch article by ID and populate the form
+      async function fetchArticleById() {
+        console.log("11111111111111111111111111111111111");
+        try {
+          console.log("222222222222222222222222222222222");
+
+          const articleID = getArticleIdFromQuery();
+          console.log("aricleID-----------------", articleID);
+          const userToken = localStorage.getItem("authToken");
+          const response = await fetch(
+            `http://127.0.0.1:8000/article/get_article/${articleID}/`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${userToken}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch article for editing");
+          }
+
+          const article = await response.json();
+          populateForm(article);
+        } catch (error) {
+          console.error("Error fetching article for editing:", error);
+        }
+      }
+
+      // Function to populate the form with article data
+      function populateForm(article) {
+        document.getElementById("article-title").value = article.title;
+        document.getElementById("article-content").value = article.content;
+      }
+
+      // Function to update the article
+      async function updateArticle() {
+        try {
+          const articleId = getArticleIdFromQuery();
+          const userToken = localStorage.getItem("authToken");
+          const csrfToken = getCookie("csrftoken");
+
+          const articleData = {
+            title: document.getElementById("article-title").value,
+            content: document.getElementById("article-content").value,
+          };
+
+          const response = await fetch(
+            `http://127.0.0.1:8000/article/update_article/${articleId}/`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+                Authorization: `Token ${userToken}`,
+              },
+              body: JSON.stringify(articleData),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to update article");
+          }
+
+          // Redirect to the home page or any other page after successful update
+          window.location.href = "{% url 'home_page' %}";
+        } catch (error) {
+          console.error("Error updating article:", error);
+        }
+      }
+
+      // Call the fetchArticleById function when the page is loaded
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("page started");
+        fetchArticleById();
+      });
+    </script>
+  </body>
+</html>

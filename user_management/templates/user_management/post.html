@@ -1,0 +1,122 @@
+{% extends 'user_management/base.html' %} {% block content %}
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-color: #ffffff;
+    color: #fff;
+  }
+
+  .container {
+    margin: 20px;
+  }
+
+  h1 {
+    color: #fff;
+    text-align: center;
+  }
+
+  .article-form-container {
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #8a2be2;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+  }
+
+  button {
+    background-color: #800080;
+    color: #fff;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #6a0080;
+  }
+</style>
+
+<div class="container">
+  <h1>Welcome to the Home Page</h1>
+  <div class="article-form-container">
+    <h2>Create Article</h2>
+    <form id="createArticleForm">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" required />
+
+      <label for="content">Content:</label>
+      <textarea id="content" name="content" required rows="6"></textarea>
+
+      <button type="button" onclick="createArticle()">Create Article</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function createArticle() {
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+    const data = {
+      title: title,
+      content: content,
+    };
+    const csrfToken = getCookie("csrftoken");
+    const userToken = localStorage.getItem("authToken");
+
+    fetch("http://127.0.0.1:8000/article/post_article_API/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+        Authorization: `Token ${userToken}`,
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (response.ok) window.location.href = "{% url 'home_page' %}";
+      })
+
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+</script>
+{% endblock %}

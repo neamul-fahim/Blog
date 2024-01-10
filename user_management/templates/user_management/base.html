@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+      }
+
+      #side-drawer {
+        height: 100vh;
+        width: 250px;
+        position: fixed;
+        left: -250px; /* Initially hidden off-screen */
+        top: 0;
+        background-color: #333;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+        transition: left 0.3s; /* Smooth transition for the drawer */
+      }
+
+      #main-content {
+        margin-left: 50px;
+        padding: 20px;
+        transition: margin-left 0.3s;
+      }
+
+      #user-name {
+        font-size: 20px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      #user-name-drawer {
+        font-size: 20px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .drawer-link {
+        color: #fff;
+        text-decoration: none;
+        margin-bottom: 10px;
+        padding: 8px;
+        border-radius: 4px;
+      }
+
+      .drawer-link:hover {
+        background-color: #555;
+      }
+
+      #drawer-icon {
+        position: fixed;
+        left: 10px;
+        top: 10px;
+        cursor: pointer;
+        font-size: 24px;
+        color: #fff;
+        z-index: 2;
+      }
+
+      /* Adjust the left margin when the drawer is open */
+      #main-content.drawer-open {
+        margin-left: 300px; /* Adjust if necessary */
+        transition: 0.8s;
+      }
+
+      /* Media query for responsiveness */
+      @media screen and (max-width: 600px) {
+        #side-drawer {
+          width: 100%; /* Full width on mobile */
+          left: -100%; /* Initially off-screen */
+        }
+
+        /* Adjust the left margin when the drawer is open */
+        #main-content.drawer-open {
+          margin-left: 0; /* Adjust if necessary */
+        }
+      }
+    </style>
+
+    <script>
+      async function fetchUser() {
+        try {
+          const userToken = "{{ request.session.token }}";
+          console.log("Base User Token:", userToken);
+          const response = await fetch("http://127.0.0.1:8000/user", {
+            method: "GET",
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${userToken}`,
+            },
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch user name");
+          }
+
+          const data = await response.json();
+
+          return data.user;
+        } catch (error) {
+          console.error("Error fetching user name:", error);
+          return Null;
+        }
+      }
+
+      async function updateUser() {
+        const userNameDrawerElement =
+          document.getElementById("user-name-drawer");
+        const userNameElement = document.getElementById("user-username");
+        const userEmailElement = document.getElementById("user-email");
+        const userProfile = await fetchUser();
+
+        if (userProfile) {
+          userNameDrawerElement.textContent = userProfile.username;
+          userNameElement.textContent = userProfile.username;
+          userEmailElement.textContent = userProfile.email;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const drawerIcon = document.getElementById("drawer-icon");
+        const sideDrawer = document.getElementById("side-drawer");
+        const mainContent = document.getElementById("main-content");
+
+        drawerIcon.addEventListener("click", toggleDrawer);
+
+        async function toggleDrawer() {
+          if (sideDrawer.style.left === "0px") {
+            sideDrawer.style.left = "-250px";
+            if (window.innerWidth <= 600) {
+              sideDrawer.style.left = "-100%";
+            }
+            mainContent.classList.remove("drawer-open");
+          } else {
+            sideDrawer.style.left = "0";
+            mainContent.classList.add("drawer-open");
+
+            // Update the user name when the drawer is opened
+            await updateUser();
+          }
+          drawerIcon.classList.toggle("drawer-open");
+        }
+
+        // Update the user name when the page loads
+        updateUser();
+      });
+    </script>
+  </head>
+  <body>
+    <div id="drawer-icon">&#9776;</div>
+
+    <div id="side-drawer">
+      <div id="user-name-drawer">Name</div>
+      <a href="{% url 'user_profile_page' %}" class="drawer-link"
+        >User Profile</a
+      >
+      <a href="{% url 'post_article_page' %}" class="drawer-link"
+        >Post Article</a
+      >
+      <a href="{% url 'home_page' %}" class="drawer-link">home</a>
+    </div>
+
+    <div id="main-content">{% block content %}{% endblock %}</div>
+  </body>
+</html>

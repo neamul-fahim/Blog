@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <style>
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+
+      .signup-container {
+        text-align: center;
+      }
+
+      form {
+        display: inline-block;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: left;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #4b0082; /* Purple color */
+      }
+
+      input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 16px;
+        border: 1px solid #4b0082; /* Purple color */
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #4b0082; /* Purple color */
+        color: #ffffff;
+        padding: 10px 20px;
+        border: 1px solid #4b0082; /* Purple color */
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #6a5acd; /* Lighter purple color on hover */
+      }
+
+      .login-link {
+        margin-top: 10px;
+        text-align: center;
+      }
+
+      /* Added styles for the loading indicator */
+      #loading-indicator {
+        display: none;
+        text-align: center;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="signup-container">
+      <h2>Sign Up</h2>
+      <form id="signup-form" onsubmit="submitForm(event)">
+        {% csrf_token %}
+        <label for="username">User Name:</label>
+        <input type="text" name="username" required />
+        <label for="email">Email:</label>
+        <input type="email" name="email" required />
+        <label for="password">Password:</label>
+        <input type="password" name="password" required />
+        <button type="submit">Submit</button>
+      </form>
+      <div id="loading-indicator">Loading...</div>
+      <div class="login-link">
+        Already have an account? <a href="{% url 'login_page' %}">Login</a>
+      </div>
+    </div>
+
+    <script>
+      function submitForm(event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        // Display loading indicator
+        document.getElementById("loading-indicator").style.display = "block";
+
+        // Get CSRF token from the page
+        const csrfToken = document.querySelector(
+          "[name=csrfmiddlewaretoken]"
+        ).value;
+
+        // Get form data
+        const formData = new FormData(document.getElementById("signup-form"));
+
+        // Append CSRF token to form data
+        formData.append("csrfmiddlewaretoken", csrfToken);
+
+        // Make API request using Fetch API
+        fetch("http://127.0.0.1:8000/signup_API/", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": csrfToken,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(Object.fromEntries(formData)),
+        })
+          .then((response) => {
+            // Hide loading indicator
+            document.getElementById("loading-indicator").style.display = "none";
+
+            if (response.ok) {
+              // Successful response, get email from form data
+              const email = formData.get("email");
+
+              // Navigate to another page with email as a query parameter
+              window.location.href = `http://127.0.0.1:8000/OTP_page?email=${encodeURIComponent(
+                email
+              )}`;
+            } else {
+              // Handle error scenarios
+              console.error("Error:", response.statusText);
+            }
+          })
+          .catch((error) => {
+            // Hide loading indicator
+            document.getElementById("loading-indicator").style.display = "none";
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Verification</title>
+    <style>
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+
+      form {
+        text-align: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        color: #4b0082; /* Purple color */
+        font-size: 16px;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 16px;
+        border: 1px solid #4b0082; /* Purple color */
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+        /* Remove increment and decrement arrows */
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+
+      button {
+        background-color: #4b0082; /* Purple color */
+        color: #ffffff;
+        padding: 10px 20px;
+        border: 1px solid #4b0082; /* Purple color */
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #6a5acd; /* Lighter purple color on hover */
+      }
+
+      #loading-indicator {
+        display: none;
+        text-align: center;
+        margin-top: 10px;
+        color: #4b0082; /* Purple color */
+      }
+    </style>
+  </head>
+  <body>
+    <form id="otpForm" onsubmit="submitForm(event)">
+      {% csrf_token %}
+      <input type="hidden" name="email" value="{{ email }}" />
+      <label for="otp">Enter OTP:</label>
+      <input type="number" name="otp" maxlength="6" minlength="6" required />
+      <br />
+      <button type="submit">Verify OTP</button>
+      <div id="loading-indicator">Loading...</div>
+    </form>
+
+    <script>
+      function submitForm(event) {
+        event.preventDefault();
+
+        // Get CSRF token from the page
+        const csrfToken = document.querySelector(
+          "[name=csrfmiddlewaretoken]"
+        ).value;
+
+        // Get form data
+        const formData = new FormData(document.getElementById("otpForm"));
+
+        // Append CSRF token to form data
+        formData.append("csrfmiddlewaretoken", csrfToken);
+
+        // Display loading indicator
+        document.getElementById("loading-indicator").style.display = "block";
+
+        // Make API request
+        fetch("http://127.0.0.1:8000/user_account_API/", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            // Hide loading indicator
+            document.getElementById("loading-indicator").style.display = "none";
+
+            if (response.status === 200) {
+              // Successful response, navigate to another page
+              window.location.href = "http://127.0.0.1:8000";
+            } else {
+              // Handle other response statuses
+              console.error("API request failed:", response.status);
+            }
+          })
+          .catch((error) => {
+            // Hide loading indicator
+            document.getElementById("loading-indicator").style.display = "none";
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>
