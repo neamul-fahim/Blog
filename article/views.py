@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAuthorOrReadOnly
 
 
 class CreateArticleView(View):
@@ -38,7 +39,7 @@ class UpdateArticleView(View):
 
 class ArticleAPIView(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, article_id):
         article = get_object_or_404(Article, id=article_id)
@@ -49,16 +50,15 @@ class ArticleAPIView(APIView):
 
 class ArticlesAPIView(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Article.objects.all()
-    print(f"{queryset}")
     serializer_class = ArticleModelSerializer
 
 
 class CreateArticleAPIView(generics.CreateAPIView):
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
 
@@ -68,11 +68,15 @@ class CreateArticleAPIView(generics.CreateAPIView):
 
 class UpdateArticleAPIView(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
+    queryset = Article.objects.all()
 
     def put(self, request, article_id):
         print(f"articleid==========================={article_id}")
         article = get_object_or_404(Article, id=article_id)
+        # Check object-level permissions
+        self.check_object_permissions(self.request, article)
+
         serializer = ArticleSerializer(article, data=request.data)
 
         if serializer.is_valid():
@@ -88,10 +92,8 @@ class UpdateArticleAPIView(APIView):
 
 class DeleteArticleAPIView(generics.DestroyAPIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
     print(f"---------------------------Delete Article API===============================")
 
     queryset = Article.objects.all()
     serializer_class = ArticleModelSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]

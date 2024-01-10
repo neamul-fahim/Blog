@@ -5,7 +5,53 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Article</title>
-    <!-- Include your stylesheets, scripts, or any other dependencies here -->
+    <style>
+      body {
+        background-color: #8a2be2; /* Purple background color */
+        color: #fff; /* White text color */
+        font-family: Arial, sans-serif; /* Optional: Choose a suitable font */
+      }
+
+      h1 {
+        color: #fff; /* White header text color */
+      }
+
+      #edit-article-container {
+        background-color: #aa80ff; /* Lighter purple container background color */
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+
+      label {
+        color: #fff; /* White label text color */
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        box-sizing: border-box;
+        border: 2px solid #fff; /* White border for input elements */
+        border-radius: 4px;
+        background-color: #8a2be2; /* Purple input background color */
+        color: #fff; /* White text color */
+      }
+
+      button {
+        background-color: #aa80ff; /* Lighter purple button background color */
+        color: #fff; /* White button text color */
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #8a2be2; /* Darker purple on hover */
+      }
+    </style>
   </head>
   <body>
     <h1>Edit Article</h1>
@@ -21,6 +67,7 @@
     </div>
 
     <script>
+      // Your existing JavaScript code remains unchanged
       function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== "") {
@@ -37,21 +84,16 @@
         }
         return cookieValue;
       }
-      // Function to extract article ID from the URL query parameters
+
       function getArticleIdFromQuery() {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
-        return urlParams.get("articleID"); // Make sure the parameter name matches the one in your URL
+        return urlParams.get("articleID");
       }
 
-      // Function to fetch article by ID and populate the form
       async function fetchArticleById() {
-        console.log("11111111111111111111111111111111111");
         try {
-          console.log("222222222222222222222222222222222");
-
           const articleID = getArticleIdFromQuery();
-          console.log("aricleID-----------------", articleID);
           const userToken = localStorage.getItem("authToken");
           const response = await fetch(
             `http://127.0.0.1:8000/article/get_article/${articleID}/`,
@@ -75,13 +117,11 @@
         }
       }
 
-      // Function to populate the form with article data
       function populateForm(article) {
         document.getElementById("article-title").value = article.title;
         document.getElementById("article-content").value = article.content;
       }
 
-      // Function to update the article
       async function updateArticle() {
         try {
           const articleId = getArticleIdFromQuery();
@@ -110,16 +150,14 @@
             throw new Error("Failed to update article");
           }
 
-          // Redirect to the home page or any other page after successful update
           window.location.href = "{% url 'home_page' %}";
         } catch (error) {
           console.error("Error updating article:", error);
+          alert(`Error: ${error.message}`);
         }
       }
 
-      // Call the fetchArticleById function when the page is loaded
       document.addEventListener("DOMContentLoaded", () => {
-        console.log("page started");
         fetchArticleById();
       });
     </script>
