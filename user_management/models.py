@@ -92,4 +92,4 @@ class OtpVerification(AbstractBaseUser):
     objects = OtpVerificationManager()
 
     def __str__(self):
-        return f"User(email={self.email} otp={self.otp}, created_at={self.created_at}, expires_at={self.expires_at}, is_verified={self.is_verified})"
+        return f"User(email={self.email}, username={self.username})"

@@ -67,7 +67,7 @@
     </div>
 
     <script>
-      // Your existing JavaScript code remains unchanged
+      const BASE_API_URL = "{{ BASE_API_URL }}";
       function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== "") {
@@ -96,7 +96,7 @@
           const articleID = getArticleIdFromQuery();
           const userToken = localStorage.getItem("authToken");
           const response = await fetch(
-            `http://127.0.0.1:8000/article/get_article/${articleID}/`,
+            `${BASE_API_URL}/article/get_article/${articleID}/`,
             {
               method: "GET",
               headers: {
@@ -134,7 +134,7 @@
           };
 
           const response = await fetch(
-            `http://127.0.0.1:8000/article/update_article/${articleId}/`,
+            `${BASE_API_URL}/article/update_article/${articleId}/`,
             {
               method: "PUT",
               headers: {

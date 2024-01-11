@@ -88,6 +88,7 @@
     </div>
 
     <script>
+      const BASE_API_URL = "{{ BASE_API_URL }}";
       function submitForm(event) {
         // Prevent default form submission
         event.preventDefault();
@@ -107,7 +108,7 @@
         formData.append("csrfmiddlewaretoken", csrfToken);
 
         // Make API request using Fetch API
-        fetch("http://127.0.0.1:8000/signup_API/", {
+        fetch(`${BASE_API_URL}/signup_API/`, {
           method: "POST",
           headers: {
             "X-CSRFToken": csrfToken,
@@ -124,7 +125,7 @@
               const email = formData.get("email");
 
               // Navigate to another page with email as a query parameter
-              window.location.href = `http://127.0.0.1:8000/OTP_page?email=${encodeURIComponent(
+              window.location.href = `${BASE_API_URL}/OTP_page?email=${encodeURIComponent(
                 email
               )}`;
             } else {

@@ -90,19 +90,17 @@
 </style>
 
 <script>
+  {% comment %} const BASE_API_URL = "{{ BASE_API_URL }}"; {% endcomment %}
   async function fetchArticles() {
     try {
       const userToken = localStorage.getItem("authToken");
-      const response = await fetch(
-        "http://127.0.0.1:8000/article/all_articles/",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${userToken}`,
-          },
-        }
-      );
+      const response = await fetch(`${BASE_API_URL}/article/all_articles/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${userToken}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch articles");
@@ -153,7 +151,7 @@
   async function editArticle(articleID) {
     try {
       // Assuming you have an edit page named "edit_article.html"
-      window.location.href = `http://127.0.0.1:8000/article/update_article_page?articleID=${encodeURIComponent(
+      window.location.href = `${BASE_API_URL}/article/update_article_page?articleID=${encodeURIComponent(
         articleID
       )}`;
     } catch (error) {
@@ -167,7 +165,7 @@
     try {
       const userToken = localStorage.getItem("authToken");
       const response = await fetch(
-        `http://127.0.0.1:8000/article/delete_article/${articleId}/`,
+        `${BASE_API_URL}/article/delete_article/${articleId}/`,
         {
           method: "DELETE",
           headers: {
@@ -193,7 +191,7 @@
     try {
       const userToken = localStorage.getItem("authToken");
       const response = await fetch(
-        `http://127.0.0.1:8000/article/ban_author/${authorId}/`,
+        `${BASE_API_URL}/article/ban_author_API/${authorId}/`,
         {
           method: "POST",
           headers: {
@@ -203,10 +201,18 @@
         }
       );
 
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        location.reload();
+
       // Handle the response as needed
       // After successful response, you may show a confirmation message or take additional actions
     } catch (error) {
       console.error("Error banning author:", error);
+      alert(`Error: ${error.message}`);
+
     }
   }
 

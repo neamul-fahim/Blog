@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.http import HttpResponse
 from rest_framework import generics
+from django.conf import settings
 
 
 class LoginView(View):
@@ -19,28 +20,33 @@ class LoginView(View):
     #     return render(request, 'user_management/signup.html')
 
     def get(self, request):
+        context = {
+            'BASE_API_URL': settings.BASE_API_URL,
+        }
         # print(f"---------------GET--------CreateTokenView------------")
-        return render(request, 'user_management/login.html')
+        return render(request, 'user_management/login.html', context)
 
 
 class SignupView(View):
     def get(self, request):
+        context = {
+            'BASE_API_URL': settings.BASE_API_URL,
+        }
         # print("-----------------SighupView")
-        return render(request, 'user_management/signup.html')
+        return render(request, 'user_management/signup.html', context)
 
 
 class OTPView(View):
     def get(self, request, *args, **kwargs):
         # print(f"-------------------Get------------------UserAccountView--------")
         email = request.GET.get('email')
-        # print(f"------Get------UserAccountView-------- {email}")
-
-        # email = kwargs.get('email')
-
-        # print(f"------Get------UserAccountView-------- {email}")
 
         if email:
-            return render(request, 'user_management/otp_verification.html', {'email': email})
+            context = {
+                'email': email,
+                'BASE_API_URL': settings.BASE_API_URL,
+            }
+            return render(request, 'user_management/otp_verification.html', context)
         else:
             return HttpResponse("Email not found in query parameters", status=400)
 
@@ -50,11 +56,13 @@ class HomeView(View):
 
         try:
             # print(f"---------------GET--------Home------------")
-            token = request.headers.get(
-                'Authorization', '').replace('Bearer ', '')
+            # token = request.headers.get(
+            #     'Authorization', '').replace('Bearer ', '')
             # print(f"---------------GET--------Home------------{token}")
-
-            return render(request, 'user_management/home_page.html')
+            context = {
+                'BASE_API_URL': settings.BASE_API_URL,
+            }
+            return render(request, 'user_management/home_page.html', context)
         except Exception as e:
             # Log the exception for debugging
             print(f"Exception: {e}")
@@ -65,8 +73,11 @@ class HomeView(View):
 class UserProfileView(View):
     def get(self, request, *args, **kwargs):
         # print(f"---------------GET--------Home------------")
+        context = {
+            'BASE_API_URL': settings.BASE_API_URL,
+        }
 
-        return render(request, 'user_management/user_profile.html')
+        return render(request, 'user_management/user_profile.html', context)
 
 
 class SignupAPIView(APIView):

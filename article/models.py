@@ -16,31 +16,31 @@ class Article(models.Model):
         return self.title
 
 
-@receiver(post_migrate)
-def group_permissions(sender, **kwargs):
+# @receiver(post_migrate)
+# def group_permissions(sender, **kwargs):
 
-    content_type = ContentType.objects.get_for_model(Article)
+#     content_type = ContentType.objects.get_for_model(Article)
 
-    author_permissions = [
-        Permission.objects.get_or_create(
-            codename='add_article', name='Can add article', content_type=content_type)[0],
-        Permission.objects.get_or_create(
-            codename='change_article', name='Can change article', content_type=content_type)[0],
-        Permission.objects.get_or_create(
-            codename='delete_article', name='Can delete article', content_type=content_type)[0],
-        Permission.objects.get_or_create(
-            codename='view_article', name='Can view article', content_type=content_type)[0],
-    ]
-    author_group, created = Group.objects.get_or_create(name='Author')
-    author_group.permissions.set(author_permissions)
+#     author_permissions = [
+#         Permission.objects.get_or_create(
+#             codename='add_article', name='Can add article', content_type=content_type)[0],
+#         Permission.objects.get_or_create(
+#             codename='change_article', name='Can change article', content_type=content_type)[0],
+#         Permission.objects.get_or_create(
+#             codename='delete_article', name='Can delete article', content_type=content_type)[0],
+#         Permission.objects.get_or_create(
+#             codename='view_article', name='Can view article', content_type=content_type)[0],
+#     ]
+#     author_group, created = Group.objects.get_or_create(name='Author')
+#     author_group.permissions.set(author_permissions)
 
-    moderator_permissions = [
-        Permission.objects.get_or_create(
-            codename='delete_article', name='Can delete article', content_type=content_type)[0],
-        Permission.objects.get_or_create(
-            codename='ban_author', name='Can ban author', content_type=content_type)[0],
-        Permission.objects.get_or_create(
-            codename='unban_author', name='Can unban author', content_type=content_type)[0],
-    ]
-    moderator_group, created = Group.objects.get_or_create(name='Moderator')
-    moderator_group.permissions.set(moderator_permissions)
+#     moderator_permissions = [
+#         Permission.objects.get_or_create(
+#             codename='delete_article', name='Can delete article', content_type=content_type)[0],
+#         Permission.objects.get_or_create(
+#             codename='ban_author', name='Can ban author', content_type=content_type)[0],
+#         Permission.objects.get_or_create(
+#             codename='unban_author', name='Can unban author', content_type=content_type)[0],
+#     ]
+#     moderator_group, created = Group.objects.get_or_create(name='Moderator')
+#     moderator_group.permissions.set(moderator_permissions)

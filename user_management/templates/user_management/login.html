@@ -82,6 +82,7 @@
     </div>
 
     <script>
+      const BASE_API_URL = "{{ BASE_API_URL }}";
       function submitForm(event) {
         // Prevent default form submission
         event.preventDefault();
@@ -95,7 +96,7 @@
         ).value;
 
         // Make API request using Fetch API
-        fetch("http://127.0.0.1:8000/get_auth_token_API/", {
+        fetch(`${BASE_API_URL}/get_auth_token_API/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -118,7 +119,7 @@
             const userToken = localStorage.getItem("authToken");
 
             // Navigate to another page with the Authorization header
-            window.location.href = `http://127.0.0.1:8000/home_page`;
+            window.location.href = `${BASE_API_URL}/home_page`;
           })
           .catch((error) => {
             console.error("Error:", error);

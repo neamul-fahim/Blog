@@ -16,4 +16,6 @@ urlpatterns = [
          views.DeleteArticleAPIView.as_view(), name='delete_article'),
     path('post_article_API/', views.CreateArticleAPIView.as_view(),
          name='post_article_API'),
+    path('ban_author_API/<int:author_id>/', views.BanAuthorAPIView.as_view(),
+         name='ban_author_API'),
 ]

@@ -146,6 +146,8 @@ EMAIL_HOST_USER = 'neamul.fahimb@gmail.com'
 EMAIL_HOST_PASSWORD = 'bwhdfyyuyrrfdrxp'
 
 ALLOWED_HOSTS = ["*"]
+BASE_API_URL = "http://192.168.12.180:8000"
+
 # CORS_ALLOWED_ORIGINS = [
 #     "http://192.168.31.206:8000",
 #     "https://192.168.31.206:8000",  # Add the HTTPS version of your IP address

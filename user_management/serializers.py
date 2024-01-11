@@ -24,7 +24,8 @@ class OtpVerificationSerializer(serializers.Serializer):
             print(f"----------------------validate-------- {attrs['otp']}")
 
         except Exception as e:
-            return Response({"message": f"Failed to send email. Reason: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+            raise serializers.ValidationError(
+                {"message": f"Failed to send email. Reason: {str(e)}"})
         return attrs
 
     def create(self, validated_data):

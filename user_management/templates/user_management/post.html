@@ -100,8 +100,8 @@
     };
     const csrfToken = getCookie("csrftoken");
     const userToken = localStorage.getItem("authToken");
-
-    fetch("http://127.0.0.1:8000/article/post_article_API/", {
+    console.log("----------------", BASE_API_URL);
+    fetch(`${BASE_API_URL}/article/post_article_API/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -111,11 +111,16 @@
       body: JSON.stringify(data),
     })
       .then((response) => {
-        if (response.ok) window.location.href = "{% url 'home_page' %}";
+        if (response.ok) {
+          window.location.href = "{% url 'home_page' %}";
+        } else {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
       })
 
       .catch((error) => {
         console.error("Error:", error);
+        alert(`Error: ${error.message}`);
       });
   }
 </script>
