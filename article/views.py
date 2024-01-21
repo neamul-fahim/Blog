@@ -1,3 +1,4 @@
+from django.db.models import F
 from user_management.models import CustomUser
 from django.http import Http404
 from django.contrib.auth.models import Group
@@ -55,7 +56,7 @@ class ArticleAPIView(APIView):
     def get(self, request, article_id):
         article = get_object_or_404(Article, id=article_id)
         serializer = ArticleSerializer(article)
-        print(f"-------article-------{serializer.data}")
+        # print(f"-------article-------{serializer.data}")
         return Response(serializer.data)
 
 
@@ -72,7 +73,8 @@ class ArticlesAPIView(generics.ListAPIView):
         author_group = Group.objects.get(name='Author')
 
         # Filter articles where the author is in the "Author" group
-        queryset = Article.objects.filter(author__groups=author_group)
+        queryset = Article.objects.filter(
+            author__groups=author_group).order_by(F('created_at').desc())
 
         return queryset
 

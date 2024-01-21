@@ -1,9 +1,40 @@
 <!-- user_profile.html -->
 
 {% extends 'user_management/base.html' %} {% block content %}
+<style>
+  body {
+    background-color: #8a2be2; /* Purple background color */
+    color: #fff; /* White text color */
+    font-family: Arial, sans-serif; /* Optional: Choose a suitable font */
+  }
+
+  h1 {
+    color: #fff; /* White header text color */
+  }
+
+  #user-profile-container {
+    background-color: #aa80ff; /* Lighter purple container background color */
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    max-width: 400px; /* Set a max-width for better readability on larger screens */
+    margin: 0 auto; /* Center the container horizontally */
+  }
+
+  p {
+    margin: 10px 0;
+  }
+
+  strong {
+    font-weight: bold;
+  }
+</style>
+
 <h1>User Profile</h1>
-<div>
-  <p><strong>Email:</strong> <span id="user-email"></span></p>
-  <p><strong>Username:</strong> <span id="user-username"></span></p>
+
+<div id="user-profile-container">
+  <p><strong>Email:</strong> <span id="user-email">user@example.com</span></p>
+  <p><strong>Username:</strong> <span id="user-username">username123</span></p>
 </div>
+
 {% endblock %}
