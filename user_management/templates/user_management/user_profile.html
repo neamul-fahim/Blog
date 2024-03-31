@@ -1,40 +1,30 @@
-<!-- user_profile.html -->
+{%load static%}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title></title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{%static 'css/user_profile.css'%}" />
+  </head>
+  <body>
+    <h1>User Profile</h1>
 
-{% extends 'user_management/base.html' %} {% block content %}
-<style>
-  body {
-    background-color: #8a2be2; /* Purple background color */
-    color: #fff; /* White text color */
-    font-family: Arial, sans-serif; /* Optional: Choose a suitable font */
-  }
-
-  h1 {
-    color: #fff; /* White header text color */
-  }
-
-  #user-profile-container {
-    background-color: #aa80ff; /* Lighter purple container background color */
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    max-width: 400px; /* Set a max-width for better readability on larger screens */
-    margin: 0 auto; /* Center the container horizontally */
-  }
-
-  p {
-    margin: 10px 0;
-  }
-
-  strong {
-    font-weight: bold;
-  }
-</style>
-
-<h1>User Profile</h1>
-
-<div id="user-profile-container">
-  <p><strong>Email:</strong> <span id="user-email">user@example.com</span></p>
-  <p><strong>Username:</strong> <span id="user-username">username123</span></p>
-</div>
-
-{% endblock %}
+    <div id="user-profile-container">
+      <p>
+        <strong>Email:</strong> <span class="user-email">user@example.com</span>
+      </p>
+      <p>
+        <strong>Username:</strong>
+        <span class="user-username">username123</span>
+      </p>
+    </div>
+    <script src="{% static 'js/user_profile.js' %}"></script>
+  </body>
+</html>

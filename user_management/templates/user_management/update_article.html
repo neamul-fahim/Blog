@@ -1,60 +1,12 @@
 <!-- edit_article.html -->
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Article</title>
-    <style>
-      body {
-        background-color: #8a2be2; /* Purple background color */
-        color: #fff; /* White text color */
-        font-family: Arial, sans-serif; /* Optional: Choose a suitable font */
-      }
-
-      h1 {
-        color: #fff; /* White header text color */
-      }
-
-      #edit-article-container {
-        background-color: #aa80ff; /* Lighter purple container background color */
-        padding: 20px;
-        border-radius: 8px;
-        margin-top: 20px;
-      }
-
-      label {
-        color: #fff; /* White label text color */
-      }
-
-      input,
-      textarea {
-        width: 100%;
-        padding: 10px;
-        margin: 5px 0;
-        box-sizing: border-box;
-        border: 2px solid #fff; /* White border for input elements */
-        border-radius: 4px;
-        background-color: #8a2be2; /* Purple input background color */
-        color: #fff; /* White text color */
-      }
-      #article-content {
-        height: 300px; /* Set the desired height */
-      }
-
-      button {
-        background-color: #8a2be2; /* Lighter purple button background color */
-        color: #fff; /* White button text color */
-        padding: 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      button:hover {
-        background-color: #8a2be2; /* Darker purple on hover */
-      }
-    </style>
+    <link rel="stylesheet" href="{%static "css/update_article.css"%}"/>
   </head>
   <body>
     <h1>Edit Article</h1>
@@ -66,103 +18,11 @@
       <label for="article-content">Content:</label>
       <textarea id="article-content"></textarea>
 
-      <button onclick="updateArticle()">Update Article</button>
+      <div class="button">
+        <button onclick="updateArticle()">Update Article</button>
+      </div>
     </div>
 
-    <script>
-      const BASE_API_URL = "{{ BASE_API_URL }}";
-      function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-          const cookies = document.cookie.split(";");
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + "=")) {
-              cookieValue = decodeURIComponent(
-                cookie.substring(name.length + 1)
-              );
-              break;
-            }
-          }
-        }
-        return cookieValue;
-      }
-
-      function getArticleIdFromQuery() {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        return urlParams.get("articleID");
-      }
-
-      async function fetchArticleById() {
-        try {
-          const articleID = getArticleIdFromQuery();
-          const userToken = localStorage.getItem("authToken");
-          const response = await fetch(
-            `${BASE_API_URL}/article/get_article/${articleID}/`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Token ${userToken}`,
-              },
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch article for editing");
-          }
-
-          const article = await response.json();
-          populateForm(article);
-        } catch (error) {
-          console.error("Error fetching article for editing:", error);
-        }
-      }
-
-      function populateForm(article) {
-        document.getElementById("article-title").value = article.title;
-        document.getElementById("article-content").value = article.content;
-      }
-
-      async function updateArticle() {
-        try {
-          const articleId = getArticleIdFromQuery();
-          const userToken = localStorage.getItem("authToken");
-          const csrfToken = getCookie("csrftoken");
-
-          const articleData = {
-            title: document.getElementById("article-title").value,
-            content: document.getElementById("article-content").value,
-          };
-
-          const response = await fetch(
-            `${BASE_API_URL}/article/update_article/${articleId}/`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken,
-                Authorization: `Token ${userToken}`,
-              },
-              body: JSON.stringify(articleData),
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to update article");
-          }
-
-          window.location.href = "{% url 'home_page' %}";
-        } catch (error) {
-          console.error("Error updating article:", error);
-          alert(`Error: ${error.message}`);
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        fetchArticleById();
-      });
-    </script>
+    <script src="/static/js/update_article.js"></script>
   </body>
 </html>

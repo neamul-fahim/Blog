@@ -1,223 +1,27 @@
-{% extends 'user_management/base.html' %} {% block content %}
-<h1>Welcome to the Home Page</h1>
-
-<div id="article-container" class="card-container"></div>
-
-<style>
-  .card-container {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .card {
-    background-color: #8a2be2; /* Purple color */
-    color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    flex: 1 0 300px; /* Allow cards to grow horizontally with a maximum width of 300px */
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .card-content {
-    background-color: #aa80ff; /* Lighter purple for article content */
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    flex: 1;
-  }
-
-  .card h1,
-  .author,
-  .date {
-    color: #fff;
-  }
-
-  .author {
-    font-size: 20px;
-  }
-
-  .date {
-    font-size: 12px;
-    margin-top: 10px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-
-  .article-content {
-    color: #000; /* Set article content text color to black */
-  }
-
-  .action-buttons {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
-  }
-
-  .action-buttons button {
-    margin-left: 10px;
-    cursor: pointer;
-  }
-
-  .edit-button {
-    background-color: yellow;
-    color: #000;
-    border: none;
-    padding: 8px;
-    border-radius: 4px;
-  }
-
-  .delete-button {
-    background-color: red;
-    color: #fff;
-    border: none;
-    padding: 8px;
-    border-radius: 4px;
-  }
-
-  .ban-button {
-    background-color: black;
-    color: #fff;
-    border: none;
-    padding: 8px;
-    border-radius: 4px;
-  }
-</style>
-
-<script>
-  {% comment %} const BASE_API_URL = "{{ BASE_API_URL }}"; {% endcomment %}
-  async function fetchArticles() {
-    try {
-      const userToken = localStorage.getItem("authToken");
-      const response = await fetch(`${BASE_API_URL}/article/all_articles/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${userToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch articles");
-      }
-
-      const data = await response.json();
-      console.log("data:---------", data);
-      return data;
-    } catch (error) {
-      console.error("Error fetching articles:", error);
-      return null;
-    }
-  }
-
-  async function displayArticles() {
-    const articleContainer = document.getElementById("article-container");
-    const articles = await fetchArticles();
-
-    if (articles && articles.length > 0) {
-      articles.forEach((article) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        const formattedDate = new Date(article.created_at)
-          .toISOString()
-          .split("T")[0]; // Format the date
-        card.innerHTML = `
-            <div class= "headings">
-              <h1>${article.author.username}</h1>
-              <p class="author">${article.title}</p>
-            </div>
-            <div class="card-content">
-              <p class="article-content">${article.content}</p>
-            </div>
-            <p class="date">Created at: ${formattedDate}</p>
-            <div class="action-buttons">
-              <button class="edit-button" onclick="editArticle(${article.id})">Edit Article</button>
-              <button class="delete-button" onclick="deleteArticle(${article.id})">Delete Article</button>
-              <button class="ban-button" onclick="banAuthor(${article.author.id})">Ban Author</button>
-            </div>
-          `;
-        articleContainer.appendChild(card);
-      });
-    } else {
-      articleContainer.innerHTML = "<p>No articles available.</p>";
-    }
-  }
-
-  async function editArticle(articleID) {
-    try {
-      // Assuming you have an edit page named "edit_article.html"
-      window.location.href = `${BASE_API_URL}/article/update_article_page?articleID=${encodeURIComponent(
-        articleID
-      )}`;
-    } catch (error) {
-      console.error("Error editing article:", error);
-    }
-  }
-
-  // ...
-
-  async function deleteArticle(articleId) {
-    try {
-      const userToken = localStorage.getItem("authToken");
-      const response = await fetch(
-        `${BASE_API_URL}/article/delete_article/${articleId}/`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${userToken}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete article");
-      }
-
-      // Reload the page after successful deletion
-      location.reload();
-    } catch (error) {
-      console.error("Error deleting article:", error);
-      alert(`Error: ${error.message}`);
-    }
-  }
-
-  async function banAuthor(authorId) {
-    try {
-      const userToken = localStorage.getItem("authToken");
-      const response = await fetch(
-        `${BASE_API_URL}/article/ban_author_API/${authorId}/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${userToken}`,
-          },
-        }
-      );
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog</title>
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}" />
+  </head>
+  <body>
+    <nav id="navbar" class="navbar">
+      <ul class="navbar-menu">
+       
+        <li><a href="/article/post_article_page/">Post Article</a></li>
+      </ul>
+      <div id="login-username" class="login-username">
+        <!-- Initially, this container will be empty -->
+    </div>   
+   </nav>
+    <hr style="border-top: 2px solid #a49cb6;">
 
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        location.reload();
+    <div class='page-title'> Articles </div>
 
-      // Handle the response as needed
-      // After successful response, you may show a confirmation message or take additional actions
-    } catch (error) {
-      console.error("Error banning author:", error);
-      alert(`Error: ${error.message}`);
-
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    displayArticles();
-  });
-</script>
-{% endblock %}
+    <div>
+      <div id= "article-container" class="article-container">    </div>
+      <script src="{% static 'js/home_page.js' %}"></script>
+  </body>
+</html>

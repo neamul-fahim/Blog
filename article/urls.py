@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('check_permission/<int:article_id>/', views.CheckPermisson.as_view(),
+         name='check_permission'),
     path('post_article_page/', views.CreateArticleView.as_view(),
          name='post_article_page'),
     path('update_article_page/', views.UpdateArticleView.as_view(),

@@ -8,11 +8,14 @@ from .models import CustomUser, OtpVerification
 from .serializers import OtpVerificationSerializer, AuthSerializer, CustomUserModelSerializer
 from .utility import send_email, get_token_from_request, country_code, designations
 from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
+
 from django.shortcuts import render, redirect
 from django.views import View
 from django.http import HttpResponse
 from rest_framework import generics
 from django.conf import settings
+User = get_user_model()
 
 
 class LoginView(View):
@@ -21,7 +24,6 @@ class LoginView(View):
 
     def get(self, request):
         context = {
-            'BASE_API_URL': settings.BASE_API_URL,
         }
         # print(f"---------------GET--------CreateTokenView------------")
         return render(request, 'user_management/login.html', context)
@@ -30,7 +32,6 @@ class LoginView(View):
 class SignupView(View):
     def get(self, request):
         context = {
-            'BASE_API_URL': settings.BASE_API_URL,
         }
         # print("-----------------SighupView")
         return render(request, 'user_management/signup.html', context)
@@ -44,7 +45,6 @@ class OTPView(View):
         if email:
             context = {
                 'email': email,
-                'BASE_API_URL': settings.BASE_API_URL,
             }
             return render(request, 'user_management/otp_verification.html', context)
         else:
@@ -53,37 +53,75 @@ class OTPView(View):
 
 class HomeView(View):
     def get(self, request, *args, **kwargs):
-
-        try:
-            # print(f"---------------GET--------Home------------")
-            # token = request.headers.get(
-            #     'Authorization', '').replace('Bearer ', '')
-            # print(f"---------------GET--------Home------------{token}")
-            context = {
-                'BASE_API_URL': settings.BASE_API_URL,
-            }
-            return render(request, 'user_management/home_page.html', context)
-        except Exception as e:
-            # Log the exception for debugging
-            print(f"Exception: {e}")
-            # Return a generic error response
-            return HttpResponse("Internal Server Error", status=500)
+        context = {}
+        return render(request, 'user_management/home_page.html', context)
 
 
 class UserProfileView(View):
     def get(self, request, *args, **kwargs):
-        # print(f"---------------GET--------Home------------")
-        context = {
-            'BASE_API_URL': settings.BASE_API_URL,
-        }
-
+        context = {}
         return render(request, 'user_management/user_profile.html', context)
+
+
+class BlockedUsersPage(View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        return render(request, 'user_management/blocked_users_page.html', context)
+
+
+class ModeratorUsersPage(View):
+    def get(self, request, *args, **kwargs):
+        context = {}
+        return render(request, 'user_management/moderator_page.html', context)
+
+
+class UserProfileAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        print(user)
+        user = {
+            'id': user.id,
+            'email': user.email,
+            'username': user.username,
+            'is_moderator': user.groups.filter(name='Moderator').exists(),
+            'is_superuser': user.is_superuser,
+        }
+        print(user)
+
+        return Response({'user': user})
+
+
+class AllUserProfileAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if not user.is_superuser:
+            return Response('Unauthoried', status=status.HTTP_401_UNAUTHORIZED)
+
+        users = CustomUser.objects.all()
+        user_data = []
+
+        for user in users:
+            user_info = {
+                'id': user.id,
+                'email': user.email,
+                'username': user.username,
+                'is_moderator': user.groups.filter(name='Moderator').exists(),
+                'is_superuser': user.is_superuser,
+            }
+            user_data.append(user_info)
+
+        return Response({'users': user_data}, status=status.HTTP_200_OK)
 
 
 class SignupAPIView(APIView):
 
     def post(self, request, *args, **kwargs):  # username,email,password
-        # print(f"----------------------OtpVerificationView--------")
         # raw_user_data = request.POST
         raw_user_data = request.data
         try:
@@ -170,52 +208,31 @@ class UserAccountView(APIView):
             return Response('Login info updated', status=status.HTTP_200_OK)
 
 
-class UserView(APIView):
-    # Add Bearer token authentication
-    # authentication_classes = [TokenAuthentication,]
-    # permission_classes = [IsAuthenticated,]
+# class UserView(APIView):
 
-    def get(self, request):  # token
-        """get the user by token"""
-        token = get_token_from_request(request)
-        # print(f"-------------------GET-----------User------------{token}")
-        # print(
-        #     f'-----UserView-----{request.data}----{request.META["HTTP_AUTHORIZATION"]}')
+#     def get(self, request):  # token
+#         """get the user by token"""
+#         token = get_token_from_request(request)
 
-        if token is None:
-            return Response('Invalid token', status=status.HTTP_401_UNAUTHORIZED)
-        try:
-            user = Token.objects.get(key=token).user
-            # print(f"---------------user 1---------------{user}")
-        except Token.DoesNotExist:
-            return Response('Invalid Token', status=status.HTTP_401_UNAUTHORIZED)
+#         if token is None:
+#             return Response('Invalid token', status=status.HTTP_401_UNAUTHORIZED)
+#         try:
+#             user = Token.objects.get(key=token).user
+#         except Token.DoesNotExist:
+#             return Response('Invalid Token', status=status.HTTP_401_UNAUTHORIZED)
+#         serializer = CustomUserModelSerializer(user)
 
-        # user_data = {
-        #     'email': user.email,
-        #     'username': user.username
-        # }
-        serializer = CustomUserModelSerializer(user)
-        # print(
-        #     f"--------------------------{user.username}----------------")
-        return Response({"user": serializer.data}, status=status.HTTP_200_OK)
+#         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
 
 class CreateTokenAPIView(APIView):
     """create and get token on user login"""
 
-    # def get(self, request):
-    #     print(f"---------------GET--------CreateTokenView------------")
-    #     return render(request, 'user_management/login.html')
-
     def post(self, request, *args, **kwargs):  # email,password
-        # print(
-        #     f"---------------POST--------CreateTokenView------------{request.data}")
-
         serializer = AuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         user = serializer.validated_data['user']
-        # ********************************************************************************
         current_user = user
         Token.objects.filter(user=user).delete()
 
@@ -224,6 +241,76 @@ class CreateTokenAPIView(APIView):
         print(f"token--------------{token}")
         request.session['token'] = token.key
         return Response({'token': token.key}, status=status.HTTP_200_OK)
+
+
+class BlockedUsersAPIView(APIView):
+    def get(self, request):
+        try:
+            # Get the 'Moderator' group
+            moderator_group = Group.objects.get(name='Author')
+
+            # Filter users who are not in the 'Moderator' group
+            non_moderator_users = User.objects.exclude(groups=moderator_group)
+
+            # Serialize the users or extract relevant data
+            user_data = [{'id': user.id, 'username': user.username,
+                          'email': user.email} for user in non_moderator_users if not user.is_superuser]
+
+            return Response({'users': user_data}, status=status.HTTP_200_OK)
+
+        except Group.DoesNotExist:
+            return Response({'error': 'Moderator group not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class UnblockUserAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            # Check if the authenticated user is in the 'Moderator' group
+            if not request.user.has_perm('article.unban_author'):
+                return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+            # Retrieve the user to be unblocked
+            user_to_unblock = CustomUser.objects.get(id=user_id)
+
+            # Add the user to the 'Author' group
+            author_group, created = Group.objects.get_or_create(name='Author')
+            user_to_unblock.groups.add(author_group)
+
+            return Response({'message': 'User unblocked and added to Author group'}, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ToggleModeratorAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            # Get the user model
+            # Retrieve the user
+            user = CustomUser.objects.get(id=user_id)
+
+            # Toggle moderator status
+            if user.groups.filter(name='Moderator').exists():
+                user.groups.remove(Group.objects.get(name='Moderator'))
+                message = f'{user.username} removed from Moderator group'
+            else:
+                user.groups.add(Group.objects.get(name='Moderator'))
+                message = f'{user.username} added to Moderator group'
+
+            return Response({'message': message})
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # class CreateArticleAPIView(APIView):

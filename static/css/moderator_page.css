@@ -1,0 +1,45 @@
+/* Style for user container */
+
+#users-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Style for user */
+.user {
+    background-color: #ceb1fb;
+    color: darkslategray;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    width: 200px;
+    text-align: center;
+}
+
+.user span {
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Style for button */
+.user button {
+    background-color: #9484b9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.user button:hover {
+    background-color: #ceb1fb; /* Darken the button color on hover */
+}
+h1 {
+    color: darkslategray;
+    text-align: center;
+  }

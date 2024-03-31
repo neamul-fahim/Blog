@@ -1,0 +1,130 @@
+.navbar {
+    display: flex; 
+    justify-content: space-between; 
+    background-color: #a49cb6; 
+    align-items: center;
+    padding: 15px; 
+    border-radius: 5px;
+
+}
+.navbar-menu {
+    list-style-type: none; 
+    margin: 0;
+    padding: 0;
+}
+.navbar-menu li {
+    display: inline-block; 
+}
+.navbar-menu li a {
+    color: darkslategray; 
+    font-weight: bold;
+    font-size: 20px;
+    text-decoration: none; 
+    padding: 10px 20px; 
+
+}
+
+
+
+.page-title{
+    padding:30px;
+    display: flex;
+    color:darkslategray;
+    font-size: 40px;
+    font-weight: 600;
+    justify-content: center;
+    align-items: center;
+}
+
+.article-card{
+    color:darkslategray;
+    background-color: #ceb1fb;
+    border-radius: 5px;
+    padding:20px;
+    margin:20px;
+}
+.article-content{
+    background-color: aliceblue;
+    color:#000;
+    border-radius: 10px;
+    padding:10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.article-title{
+    margin-left: 5px;
+    font-size: 20px;
+    font-weight: 400px;
+}
+.author-date{
+    display: flex;
+    justify-content: space-between;
+}
+.article-buttons{
+    display: flex;
+    justify-content: end;
+}
+.edit-button, .ban-button, .delete-button{
+ padding: 15px;
+ margin:10px;
+ border-radius: 5px;
+ border:none;
+ color:white;
+ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+.edit-button{
+    background-color: #9484b9;
+}
+.ban-button{
+    background-color: #000;
+}
+.delete-button{
+    background-color: #ff6b6b;
+}
+
+
+
+
+/* Style for the username link */
+.username {
+    color: #333;
+    font-weight: bold;
+    text-decoration: none;
+    margin-right: 10px; /* Add some margin between the username and the button */
+}
+
+.username:hover {
+    text-decoration: underline; /* Underline the username on hover */
+}
+
+/* Style for the logout button */
+.logout-btn {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #e74c3c; /* Darken the button color on hover */
+}
+
+.login-btn {
+    background-color:#9484b9 ;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+    background-color: #a49cb6; /* Darken the button color on hover */
+}

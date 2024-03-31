@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from rest_framework.authtoken.models import Token
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
+from rest_framework.exceptions import PermissionDenied
 from .models import Article
 from .serializers import ArticleModelSerializer, ArticleSerializer
 from rest_framework.authentication import TokenAuthentication
@@ -16,12 +17,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly, CanDeleteArticle
 from django.conf import settings
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 
 class CreateArticleView(View):
-    template_name = 'user_management/post.html'
+    template_name = 'user_management/create_article_page.html'
 
     def get(self, request, *args, **kwargs):
         form = ArticleForm()
@@ -34,6 +36,8 @@ class CreateArticleView(View):
 
 class UpdateArticleView(View):
     template_name = 'user_management/update_article.html'
+    # Apply the same permissions as in the APIView
+    # permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
 
     def get(self, request, *args, **kwargs):
 
@@ -49,6 +53,7 @@ class UpdateArticleView(View):
 #         form = ArticleForm()
 #         return render(request, 'user_management/post.html', {'form': form})
 
+
 class ArticleAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -61,8 +66,8 @@ class ArticleAPIView(APIView):
 
 
 class ArticlesAPIView(generics.ListAPIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     serializer_class = ArticleModelSerializer
 
     def get_queryset(self):
@@ -102,6 +107,25 @@ class CreateArticleAPIView(generics.CreateAPIView):
                 "You do not have permission to add an article.")
 
 
+class CheckPermisson(APIView):
+    def get(self, request, article_id):
+        article = get_object_or_404(Article, id=article_id)
+        # Check object-level permissions
+        token = get_token_from_request(request)
+        if not token:
+            return Response({'message': "Request doesn't contain token"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            token = Token.objects.get(key=token)
+        except Token.DoesNotExist:
+            return Response({'message': 'Token not found'}, status=status.HTTP_401_UNAUTHORIZED)
+        print(f"--------------{token.user}")
+        print(f"----------------{article.author}")
+        if token.user != article.author:
+            return Response({'message': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response({'message': 'Permission granted'}, status=status.HTTP_200_OK)
+
+
 class UpdateArticleAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
@@ -126,13 +150,20 @@ class UpdateArticleAPIView(APIView):
 #     serializer_class = ArticleModelSerializer
 
 
-class DeleteArticleAPIView(generics.DestroyAPIView):
+class DeleteArticleAPIView(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
-    print(f"---------------------------Delete Article API===============================")
+    permission_classes = [IsAuthenticated, CanDeleteArticle]
 
-    queryset = Article.objects.all()
-    serializer_class = ArticleModelSerializer
+    def delete(self, request, pk):
+        try:
+            article = Article.objects.get(pk=pk)
+        except Article.DoesNotExist:
+            return Response({"error": "Article does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+        self.check_object_permissions(request, article)
+
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BanAuthorAPIView(APIView):
@@ -148,10 +179,8 @@ class BanAuthorAPIView(APIView):
             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
 
         try:
-            # Assuming "Author" is the name of the group
             author_group = Group.objects.get(name='Author')
 
-            # Remove the user from the "Author" group
             user_to_ban.groups.remove(author_group)
 
             return Response({"detail": "User removed from 'Author' group"}, status=status.HTTP_200_OK)

@@ -82,7 +82,6 @@
     </div>
 
     <script>
-      const BASE_API_URL = "{{ BASE_API_URL }}";
       function submitForm(event) {
         // Prevent default form submission
         event.preventDefault();
@@ -96,7 +95,7 @@
         ).value;
 
         // Make API request using Fetch API
-        fetch(`${BASE_API_URL}/get_auth_token_API/`, {
+        fetch(`/get_auth_token_API/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -119,10 +118,11 @@
             const userToken = localStorage.getItem("authToken");
 
             // Navigate to another page with the Authorization header
-            window.location.href = `${BASE_API_URL}/home_page`;
+            window.location.href = `/`;
           })
           .catch((error) => {
             console.error("Error:", error);
+            alert("User credentials didn't match");
           });
       }
     </script>

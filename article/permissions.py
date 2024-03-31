@@ -15,3 +15,10 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
 
         # Write permissions are only allowed to the author of the article.
         return obj.author == request.user
+
+
+class CanDeleteArticle(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if obj.author == request.user or request.user.has_perm('article.ban_author'):
+            return True
+        return False

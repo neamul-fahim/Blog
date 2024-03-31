@@ -47,8 +47,8 @@ def send_email(email, message):
 def get_token_from_request(request: HttpRequest) -> str:
     """Extract token from request header."""
     auth_header = request.headers.get('Authorization', '')
-    if auth_header.startswith('Bearer '):
-        return auth_header.split('Bearer ')[1].strip()
+    if auth_header.startswith('Token '):
+        return auth_header.split('Token ')[1].strip()
     return None
 
 
